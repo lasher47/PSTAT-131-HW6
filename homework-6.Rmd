@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE,
 library(tidyverse)
 library(tidymodels)
 library(janitor)
+library(corrplot)
 ```
 
 ## Tree-Based Models
@@ -94,15 +95,30 @@ Create a correlation matrix of the training set, using the `corrplot` package. *
 What relationships, if any, do you notice? Do these relationships make sense to you?
 
 ```{r}
+#Transform non-continuous variables to continuous if possible
+#because correlation is best done between numeric and contininous variables
+pokemon_matrix_df <- select(pokemon_train, c('type_1','legendary','generation','sp_atk','attack','speed','defense','hp','sp_def')) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate_if(is.factor, as.numeric)
+
+pokemon_corr_matrix <- cor(pokemon_matrix_df)
+
+corrplot(pokemon_corr_matrix, method = "number")
+  
 
 ```
-
+Defense and special defense seem to have a decent amount of correlation. This makes sense because most Pokemon that are on the bulkier side usually don't have a glaring weakness against either physical or special attackers. Glass cannon Pokemon also tend to be low on both of those stats. Attack and speed also seem to have a relationship, likely because offensive Pokemon tend to have high numbers in both of those stats. Legendary Pokemon are also correlated more with special attack than other stat. This makes sense, because these Pokemon tend to possess unique and/or flashy moves which are more likely to be special attacking moves instead of physical moves. Each attack stat(special attack and attack) and their corresponding defense stat(special defense and defense) also seem to have a relationship, which I think makes sense intuitively. [Maybe edit this?]
 
 ### Exercise 3
 
 First, set up a decision tree model and workflow. Tune the `cost_complexity` hyperparameter. Use the same levels we used in Lab 7 -- that is, `range = c(-3, -1)`. Specify that the metric we want to optimize is `roc_auc`. 
 
 Print an `autoplot()` of the results. What do you observe? Does a single decision tree perform better with a smaller or larger complexity penalty?
+
+```{r}
+
+```
+
 
 ### Exercise 4
 
